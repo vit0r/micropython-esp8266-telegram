@@ -1,21 +1,15 @@
 import urequests as requests
-from mywifi import pin_status, device_id
+from mywifi import pin_status, device_id, do_on_off_led
+from time import sleep
 
-def get_joke():
-  r = requests.get('https://official-joke-api.appspot.com/jokes/random')
-  pin_status(r)
-  return r.json()
 
-def send_joke_telegram():
-  joke = get_joke()
-  if joke:
-    text_message = '{}\nPunchline: {}'.format(joke.get('setup'), joke.get('punchline'))
-    chat_id = 0
-    if chat_id == 0:
-      exit(1)
-    response = {'message': {'from': {'username': device_id() }, 'chat': {'id': chat_id}, 'text': text_message}}
-    telegram_botreq = requests.post('https://telegram-webhook-sample.herokuapp.com/', json=response)
-    pin_status(telegram_botreq)
-    telegram_botreq.close()
+def on_off_led_pin():
+    telegram_botresp = requests.get(
+        'https://telegram-webhook-sample.herokuapp.com/')
+    do_on_off_led(telegram_botresp)
+    telegram_botresp.close()
+    sleep(8)
 
-send_joke_telegram()
+
+while True:
+    on_off_led_pin()
