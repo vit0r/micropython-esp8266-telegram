@@ -1,5 +1,5 @@
 import urequests as requests
-from mywifi import pin_status, device_id, do_on_off_led
+from device_mod import device_id, do_on_off_led
 from time import sleep
 
 

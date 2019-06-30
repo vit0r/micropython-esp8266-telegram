@@ -1,15 +1,17 @@
-from machine import Pin, unique_id
+from machine import Pin, unique_id, ADC
 from time import sleep
 
 
 pin = Pin(5, Pin.OUT)
+pin2 = Pin(2, Pin.OUT)
+adc0 = ADC(0)
 
 
 def __try_connect(sta_if):
     while not sta_if.isconnected():
-        pin.on()
+        pin2.on()
         sleep(0.5)
-        pin.off()
+        pin2.off()
         sleep(0.5)
 
 
@@ -32,13 +34,12 @@ def __read_credentials():
     return wcred
 
 
-def pin_status(req):
-    pin.on()
-    if req.status_code == 200:
-        sleep(0.5)
-    else:
-        sleep(2)
-    pin.off()
+def pin_status(resp):
+    pin2.off()
+    print('request api {}'.format(resp.status_code))
+    if resp.status_code == 200:
+        pin2.on()
+        sleep(0.3)
 
 
 def device_id():
@@ -48,10 +49,9 @@ def device_id():
 
 
 def do_on_off_led(resp):
-    if resp.status_code != 200:
-        exit(1)
+    pin_status(resp)
     led_action = str(resp.json().get('led_status')).lower()
-    if led_action == 'on':
+    if led_action == 'on' and adc0.read() >= 500:
         pin.on()
-    elif led_action == 'off':
+    elif led_action == 'off' or adc0.read() < 500:
         pin.off()
