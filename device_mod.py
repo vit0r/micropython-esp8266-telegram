@@ -1,6 +1,6 @@
-from machine import Pin, unique_id, ADC
 from time import sleep
 
+from machine import ADC, Pin, unique_id
 
 pin = Pin(5, Pin.OUT)
 pin2 = Pin(2, Pin.OUT)
@@ -17,26 +17,28 @@ def __try_connect(sta_if):
 
 def do_connect():
     import network
+
     sta_if = network.WLAN(network.STA_IF)
     if not sta_if.isconnected():
-        print('connecting to network...')
+        print("connecting to network...")
         sta_if.active(True)
         wcred = __read_credentials()
-        sta_if.connect(wcred.get('essid'), wcred.get('password'))
+        sta_if.connect(wcred.get("essid"), wcred.get("password"))
         __try_connect(sta_if)
-    print('network config:', sta_if.ifconfig())
+    print("network config:", sta_if.ifconfig())
 
 
 def __read_credentials():
     import json
-    with open('mywifi_cred.json', 'r') as cred:
+
+    with open("mywifi_cred.json", "r") as cred:
         wcred = json.load(cred)
     return wcred
 
 
 def pin_status(resp):
     pin2.off()
-    print('request api {}'.format(resp.status_code))
+    print("request api {}".format(resp.status_code))
     if resp.status_code == 200:
         pin2.on()
         sleep(0.3)
@@ -45,13 +47,14 @@ def pin_status(resp):
 def device_id():
     machine_id = unique_id()
     from ubinascii import hexlify
-    return hexlify(machine_id).decode('utf-8')
+
+    return hexlify(machine_id).decode("utf-8")
 
 
 def do_on_off_led(resp):
     pin_status(resp)
-    led_action = str(resp.json().get('led_status')).lower()
-    if led_action == 'on' and adc0.read() >= 500:
+    led_action = str(resp.json().get("led_status")).lower()
+    if led_action == "on" and adc0.read() >= 500:
         pin.on()
-    elif led_action == 'off' or adc0.read() < 500:
+    elif led_action == "off" or adc0.read() < 500:
         pin.off()

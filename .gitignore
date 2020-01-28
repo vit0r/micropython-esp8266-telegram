@@ -1,3 +1,4 @@
 mywifi_cred.json
 .env
 .vscode
+.venv*
